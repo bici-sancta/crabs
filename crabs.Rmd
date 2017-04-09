@@ -1,7 +1,7 @@
 ---
-title: "autism"
+title: "intertidal crabs"
 author: "mcdevitt"
-date: "03 avr 2017"
+date: "09 avr 2017"
 output:
   html_document:
     highlight: tango
@@ -16,7 +16,7 @@ library(ggplot2)
 
 ```
 
-### Homework 11 - Problem Set 2 - Autism Prevalence
+### Homework 12 - Problem Set 1 - Predatory intertidal crab species
 
 ```{r crabs}
 
@@ -35,17 +35,31 @@ crabs$species <- as.factor(crabs$species)
 crabs$log_force <- log(crabs$force)
 crabs$log_height <- log(crabs$height)
 
+```
+
+***  
+
+#### ...	-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-  
+### __Step 1 - Plot the data__  
+
+```{r}
 # ...	-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 # ...	basic plot of data sets
 # ...	-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
 p <- ggplot(crabs, aes(log_height, log_force))
-p + geom_point()
 p + geom_point(aes(color = factor(species)))
+```
 
+
+***  
+
+#### ...	-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-  
+### __Steps 2 & 3:  Build a model & Fit the model__  
+
+```{r}
 # ...	set reference as Hemigrapsus nudus
 crabs <- within(crabs, species <- relevel(species, ref = 2))
-
 
 # ...	-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 # ...	linear model
@@ -60,6 +74,15 @@ pred_1 = data.frame(x = crabs$log_height, y = predict(fit_1, crabs), species = c
 ggplot(crabs) +
 	geom_point(aes(log_height, log_force, color = species)) +
 	geom_line(data = pred_1, aes(x, y, color = species))
+
+```
+
+***  
+
+#### ...	-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-  
+#### __d. Step 4: Provide a residual plot, studentized residual plot, histogram of residuals and qq plot of residuals__  
+
+```{r}
 
 # ...	-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 # ...	residuals vs. fitted values
