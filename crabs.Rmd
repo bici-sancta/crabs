@@ -1,0 +1,103 @@
+---
+title: "autism"
+author: "mcdevitt"
+date: "03 avr 2017"
+output:
+  html_document:
+    highlight: tango
+    theme: united
+  pdf_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+library(ggplot2)
+
+```
+
+### Homework 11 - Problem Set 2 - Autism Prevalence
+
+```{r crabs}
+
+home_dir <- "~/_smu/_src/crabs/"
+setwd(home_dir)
+data_dir <- "./data"
+setwd(data_dir)
+
+crabs <- read.csv("ex0722.csv", stringsAsFactors = FALSE)
+
+setwd(home_dir)
+
+names(crabs) <- tolower(names(crabs))
+crabs$species <- as.factor(crabs$species)
+
+crabs$log_force <- log(crabs$force)
+crabs$log_height <- log(crabs$height)
+
+# ...	-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+# ...	basic plot of data sets
+# ...	-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+
+p <- ggplot(crabs, aes(log_height, log_force))
+p + geom_point()
+p + geom_point(aes(color = factor(species)))
+
+# ...	set reference as Hemigrapsus nudus
+crabs <- within(crabs, species <- relevel(species, ref = 2))
+
+
+# ...	-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+# ...	linear model
+# ...	-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+
+fit_1 = lm(log_force ~ log_height + species + log_height * species, data = crabs)
+
+summary(fit_1)
+
+pred_1 = data.frame(x = crabs$log_height, y = predict(fit_1, crabs), species = crabs$species)
+
+ggplot(crabs) +
+	geom_point(aes(log_height, log_force, color = species)) +
+	geom_line(data = pred_1, aes(x, y, color = species))
+
+# ...	-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+# ...	residuals vs. fitted values
+# ...	-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+
+library(broom)
+df <- augment(fit_1)
+ggplot(df, aes(x = .fitted, y = .resid)) + geom_point()
+
+# ...	-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+# ...	qq plot
+# ...	-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+
+library(car)
+# Normality of Residuals
+# qq plot for studentized resid
+qqPlot(fit_1, main = "QQ Plot")
+# distribution of studentized residuals
+library(MASS)
+
+# ...	-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+# ...	Studentized residuals
+# ...	-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+
+sresid <- studres(fit_1)
+
+hist(sresid, freq = FALSE,
+   main="Distribution of Studentized Residuals")
+
+xfit <- seq(min(sresid), max(sresid), length=40)
+yfit <- dnorm(xfit)
+lines(xfit, yfit) 
+
+
+```
+
+
+
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=--=-=-=-  
+end-of-document  
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=--=-=-=-  
